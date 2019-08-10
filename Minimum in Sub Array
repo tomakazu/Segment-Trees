@@ -1,0 +1,70 @@
+#include<bits/stdc++.h>
+using namespace std;
+void buildtree(int *array,int *tree, int start,int end,int treenode)
+{
+	if(start==end){
+		tree[treenode] = array[start];
+		return;
+	}
+	int mid = (start+end)/2;
+	buildtree(array,tree,start,mid,2*treenode);
+	buildtree(array,tree,mid+1,end,2*treenode+1);
+	tree[treenode] = min(tree[2*treenode],tree[2*treenode+1]);
+}
+
+int minimumSubarray(int *tree,int start,int end,int l,int r,int treenode){
+    if(start>r||end<l){
+        return INT_MAX;
+    }
+    if(start>=l&&end<=r){
+        return tree[treenode];
+    }
+    int mid = (start+end)/2;
+    
+    int ans1 = minimumSubarray(tree,start,mid,l,r,2*treenode);
+    int ans2 = minimumSubarray(tree,mid+1,end,l,r,2*treenode+1);      
+    int minimum = min(ans1,ans2);
+    return minimum;
+}
+void update(int *array,int *tree,int start,int end,int treenode,int x,int y){
+	int mid = (start+end)/2;
+	if(start==end){
+		array[x] = y;
+		tree[treenode] = y;
+		return;
+	}
+	if(x>mid){
+		update(array,tree,mid+1,end,2*treenode+1,x,y);
+	}
+	else{
+		update(array,tree,start,mid,2*treenode,x,y);
+	}
+	tree[treenode] = min(tree[2*treenode+1],tree[2*treenode]);
+}
+int main() {
+
+	// Write your code here
+    int n,q;
+    cin>>n>>q;
+    int *array = new int [n];
+    for(int i=0;i<n;i++){
+        cin>>array[i];
+    }
+    int *tree = new int[4*n];
+    buildtree(array,tree,0,n-1,1);    
+    while(q--){
+        char c;
+        cin>>c;
+        if(c=='q'){
+            int l,r;
+            cin>>l>>r;
+            cout<<minimumSubarray(tree,0,n-1,l-1,r-1,1)<<endl;
+        }
+        else if(c=='u'){
+            int x,y;
+            cin>>x>>y;
+            update(array,tree,0,n-1,1,x-1,y);
+        }
+    }
+    
+}
