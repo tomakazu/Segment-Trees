@@ -1,0 +1,109 @@
+#include<bits/stdc++.h>
+using namespace std;
+struct node{
+    int a,b,index;
+};
+void buildtree(node* soldier, node* tree,int treenode,int start,int end){
+    int mid = (start+end)/2;
+    
+    if(start==end){
+        tree[treenode].a = soldier[start].a;
+        tree[treenode].b = soldier[start].b;
+        tree[treenode].index = soldier[start].index;
+        return;
+    }
+    buildtree(soldier,tree,2*treenode,start,mid);
+    buildtree(soldier,tree,2*treenode+1,mid+1,end);
+    node left = tree[2*treenode];
+    node right = tree[2*treenode+1];
+    if(left.a>right.a){
+        tree[treenode] = left;
+    }
+    else if(left.a<right.a){
+        tree[treenode] = right;
+    }
+    else{
+        if(left.b>right.b){
+            tree[treenode] = right;
+        }
+        else if(left.b<right.b){
+            tree[treenode] = left;
+        }
+        else{
+            if(left.index<right.index){
+                tree[treenode] = left;
+            }
+            else{
+                tree[treenode] = right;
+            }
+        }
+    }
+}
+node query(node *tree,int treenode,int start,int end,int left,int right){
+	int mid = (start+end)/2;
+	
+	if(start>right||end<left){
+		node temp;
+		temp.a = 0;
+		temp.b = 0;
+		temp.index = 0;
+		return temp;
+	}
+	if(start>=left&&end<=right){
+		return tree[treenode];
+	}
+	node l = query(tree,2*treenode,start,mid,left,right);
+	node r = query(tree,2*treenode+1,mid+1,end,left,right);
+	if(l.a>r.a){
+        return l;
+    }
+    else if(l.a<r.a){
+        return r;
+    }
+    else{
+        if(l.b>r.b){
+            return r;
+        }
+        else if(l.b<r.b){
+            return l;
+        }
+        else{
+            if(l.index<r.index){
+                return l;
+            }
+            else{
+                return r;
+            }
+        }
+    }	
+}
+int main() {
+
+	// Write your code here
+    int n;
+    cin>>n;
+    node *soldier = new node[n];
+    for(int i=0;i<n;i++){
+        cin>>soldier[i].a;
+    }
+    for(int i=0;i<n;i++){
+        cin>>soldier[i].b; 
+    }
+    for(int i=0;i<n;i++){
+        soldier[i].index = i;
+    }
+    node *tree = new node[3*n];
+    buildtree(soldier,tree,1,0,n-1);
+    /*for(int i=1;i<2*n;i++){
+    	cout<<tree[i].a<<" "<<tree[i].b<<" "<<tree[i].index<<endl;
+	}*/
+    int q;
+    cin>>q;
+    for(int i=0;i<q;i++){
+    	int l,r;
+    	cin>>l>>r;
+    	node d = query(tree,1,0,n-1,l-1,r-1);
+		cout<<d.index+1<<endl;
+	}
+	return 0;
+}
