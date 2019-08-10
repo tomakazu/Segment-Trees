@@ -1,0 +1,105 @@
+#include<bits/stdc++.h>
+using namespace std;
+
+struct node{
+	long int totalsum;
+	long int bps;
+	long int bss;
+	long int bestsum;
+};
+
+node query(node* tree,int start,int end,int left,int right,int treenode)
+{
+	if(left>end||right<start)
+	{
+		node random;
+		random.bestsum=INT_MIN;
+		random.bps=INT_MIN;
+		random.bss=INT_MIN;
+		random.totalsum=INT_MIN;
+		return random;
+	}
+	if(start>=left&&end<=right)
+	{
+		return tree[treenode];
+		
+	}
+	
+	int mid=(start+end)/2;
+	node a1=query(tree,start,mid,left,right,2*treenode);
+	node a2=query(tree,mid+1,end,left,right,2*treenode+1);
+	node ans;
+	long int l1=a1.totalsum;
+	long int l2=a1.bps;
+	long int l3=a1.bss;
+	long int l4=a1.bestsum;
+	long int r1=a2.totalsum;
+	long int r2=a2.bps;
+	long int r3=a2.bss;
+	long int r4=a2.bestsum;
+	ans.totalsum=a1.totalsum+a2.totalsum;
+	ans.bps=max(a1.totalsum+a2.bps,a1.bps);
+	ans.bss=max(a1.bss+a2.totalsum,a2.bss);
+	ans.bestsum=max(l4,max(r4,max(l1+r2,max(l3+r1,l3+r2))));
+	return ans;
+}
+void buildtree(long int *arr,node *tree,int start,int end,int treenode)
+{
+	if(start==end)
+	{
+		tree[treenode].totalsum=arr[start];
+		tree[treenode].bestsum=arr[start];
+		tree[treenode].bps=arr[start];
+		tree[treenode].bss=arr[start];
+		return ;
+	}
+	int mid=(start+end)/2;
+	buildtree(arr,tree,start,mid,2*treenode);
+	buildtree(arr,tree,mid+1,end,2*treenode+1);
+	long int l1=tree[2*treenode].totalsum;
+	long int l2=tree[2*treenode].bps;
+	long int l3=tree[2*treenode].bss;
+	long int l4=tree[2*treenode].bestsum;
+	long int r1=tree[2*treenode+1].totalsum;
+	long int r2=tree[2*treenode+1].bps;
+	long int r3=tree[2*treenode+1].bss;
+	long int r4=tree[2*treenode+1].bestsum;
+	tree[treenode].totalsum=tree[2*treenode].totalsum+tree[2*treenode+1].totalsum;
+	tree[treenode].bps=max(tree[2*treenode].totalsum+tree[2*treenode+1].bps,tree[2*treenode].bps);
+	tree[treenode].bss=max(tree[2*treenode].bss+tree[2*treenode+1].totalsum,tree[2*treenode+1].bss);
+	tree[treenode].bestsum=max(l4,max(r4,max(l1+r2,max(l3+r1,l3+r2))));
+	
+}
+
+
+int main() {
+
+	// Write your code here
+	int n;
+	cin>>n;
+	long int *arr=new long int[n+1];
+	for(int i=1;i<=n;i++)
+	{
+		cin>>arr[i];
+	}
+	
+	int m;
+	cin>>m;
+	
+	//Creating Tree
+	node *tree= new node[4*n];
+	
+	//Building Tree
+	buildtree(arr,tree,1,n,1);
+	
+	// M queries
+	while(m--)
+	{
+		int x1,y1;
+		cin>>x1>>y1;
+		node ans=query(tree,1,n,x1,y1,1);
+		cout<<ans.bestsum<<endl;
+	}
+	return 0;
+}
+
