@@ -1,0 +1,74 @@
+#include<bits/stdc++.h>
+using namespace std;
+class trei{
+	public:
+		trei *right;
+		trei *left;
+};
+void update(trei *head,int value){
+	trei *curr = head;
+	for(int i=31;i>=0;i--){
+		int bit = (value>>i)&1;
+		if(bit==0){
+			if(!curr->left){
+				curr->left = new trei();
+			}
+			curr = curr->left;
+		}
+		else{
+			if(!curr->right){
+				curr->right = new trei();
+			}
+			curr = curr->right;
+		}
+	}
+}
+int findPossibleSubXor(trei *head,int value){
+	trei *curr = head;
+    int sum = 0;
+	for(int i=31;i>=0;i--){
+		int bit = (value>>i)&1;
+		if(bit==0){
+			if(curr->right){
+				curr = curr->right;
+				sum+=pow(2,i);
+			}
+			else{
+				curr = curr->left;
+			}
+		}
+		else{
+			if(curr->left){
+				curr = curr->left;
+				sum+=pow(2,i);
+			}
+			else{
+				curr = curr->right;
+			}
+		}
+	}
+	return sum;
+}
+int findMaxXor(trei *head,int n,int *array){
+	update(head,array[0]);
+	int maxxor = array[0],curr_xor = array[0];
+	for(int i=1;i<n;i++){
+		curr_xor = curr_xor^array[i];
+		int temp = findPossibleSubXor(head,curr_xor);	 
+		maxxor = max(temp,max(curr_xor,maxxor));
+		update(head,curr_xor);
+	}
+	return maxxor;
+}
+int main(){
+	int n;
+	cin>>n;
+	int *array = new int[n];
+	for(int i=0;i<n;i++){
+		cin>>array[i];
+	}
+	trei *head = new trei();
+	int ans = findMaxXor(head,n,array);
+	cout<<ans;
+	return 0;
+}
