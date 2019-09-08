@@ -1,0 +1,79 @@
+#include <bits/stdc++.h>
+using namespace std;
+class node{
+    public:
+    node **children;
+    bool flag;
+    node(){
+        children = new node*[26];
+        for(int i=0;i<26;i++){
+            children[i] = NULL;
+        }
+        flag = false;
+    }
+};
+void insert(string s,node *root){
+    if(s.empty()){
+        root->flag = true;
+        return;
+    }
+    int index = s[0] -'a';
+    node *child;
+    if(root->children[index]){
+        child = root->children[index];
+    }else{
+        child = new node();
+        root->children[index] = child;
+    }
+    insert(s.substr(1),child);
+}
+void dfs(node *root, string ans){
+    if(root->flag){
+        
+        cout<<ans<<endl;
+    
+    }
+    for(int i=0;i<26;i++){
+        if(root->children[i])
+        {
+		   dfs(root->children[i],ans+(char)(i+'a')); 
+        } 
+    }
+    
+}
+void findAllStrings(string s,node *root){
+
+    node *curr = root;
+    for(int i=0;i<s.length();i++){
+        int index = s[i] - 'a';
+        
+        if(curr->children[index]){
+            curr = curr->children[index]; 
+        }
+        else{
+            cout<<"No suggestions"<<endl;
+            insert(s,root);
+            return;
+        }
+    }
+    dfs(curr,s);
+}
+int main()
+{
+    int n;
+    cin>>n;
+    node *root = new node();
+    for(int i=0;i<n;i++){
+        string s;
+        cin>>s;
+        insert(s,root);
+    }
+    int q;
+    cin>>q;
+    for(int i=0;i<q;i++){
+        string prefix;
+        cin>>prefix;
+        findAllStrings(prefix,root);
+    }
+    return 0;
+}
