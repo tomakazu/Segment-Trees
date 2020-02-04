@@ -1,0 +1,84 @@
+#include<bits/stdc++.h>
+using namespace std;
+#define ll long long int
+void buildtree(ll *array,ll *tree,int start,int end,ll treenode){
+	int mid = (start+end)/2;
+	if(start==end){
+		if(array[start]%2==0){
+			tree[treenode] = 1;
+		}
+	
+		return;
+	}
+	buildtree(array,tree,start,mid,2*treenode);
+	buildtree(array,tree,mid+1,end,2*treenode+1);
+	tree[treenode] = tree[2*treenode] + tree[2*treenode+1];
+}
+void modify(ll *array,ll *tree,int start,int end,ll treenode,int index,int x){
+	int mid = (start+end)/2;
+	if(start==end){
+		array[index] = x;
+		if(x%2==0){
+			
+			tree[treenode] = 1;
+		    return;
+		    
+		}
+		tree[treenode] = 0;
+		return;
+		
+	}
+	if(start>end){
+		return;
+	}
+	if(start<=index&&index<=mid){
+		modify(array,tree,start,mid,2*treenode,index,x);	
+	}else{
+		modify(array,tree,mid+1,end,2*treenode+1,index,x);
+	}
+	tree[treenode] = tree[2*treenode] + tree[2*treenode+1];
+}
+int query(ll *tree,int start,int end,int l,int r,ll treenode){
+	
+	int mid = (start+end)/2;
+	if(start>=l&&end<=r){
+		return tree[treenode];
+	}
+	if(start>r||end<l){
+		return 0;
+	}
+	int ans1 = query(tree,start,mid,l,r,2*treenode);
+	int ans2 = query(tree,mid+1,end,l,r,2*treenode+1);
+	return ans1+ans2;
+}
+int main(){
+	int n,m;
+	cin>>n;
+	ll *tree = new ll[4*n]();
+	ll *array = new ll[n];
+	for(int i=0;i<n;i++){
+		cin>>array[i];
+	}
+	buildtree(array,tree,0,n-1,1);
+
+	int q;
+	cin>>q;
+	while(q--){
+		int c;
+		cin>>c;
+		switch(c){
+			case 0: int i,x;
+					cin>>i>>x;
+					modify(array,tree,0,n-1,1,i-1,x);
+					break;
+			case 1: int l,r;
+					cin>>l>>r;
+					cout<<query(tree,0,n-1,l-1,r-1,1)<<endl;
+					break;
+			case 2: cin>>l>>r;
+					cout<<(r-l+1 - query(tree,0,n-1,l-1,r-1,1))<<endl;
+		};
+	}
+	
+	return 0;
+}
