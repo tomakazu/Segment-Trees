@@ -1,0 +1,89 @@
+#include<bits/stdc++.h>
+using namespace std;
+#define ll long long int
+#define MAXN 30000
+
+ll ar[MAXN];
+vector<ll> sub_ar[4*MAXN];
+
+void build(int low,int high,int node){
+	
+	if(low==high){
+		sub_ar[node].push_back(ar[low]);
+		return;
+	}
+	
+	int mid = (low+high)/2;
+	build(low,mid,2*node);
+	build(mid+1,high,2*node+1);
+	
+	//cout<<sub_ar[node].size();
+	//Merging two vectors
+	int i = 0,j = 0;
+	while(i<sub_ar[2*node].size()&&j<sub_ar[2*node+1].size()){
+		if(sub_ar[2*node][i]<=sub_ar[2*node+1][j]){
+			sub_ar[node].push_back(sub_ar[2*node][i]);
+			i++;
+		}else{
+			sub_ar[node].push_back(sub_ar[2*node+1][j]);
+			j++;
+		}
+	}	
+	
+	while(i<sub_ar[2*node].size()){
+		sub_ar[node].push_back(sub_ar[2*node][i]);
+		i++;
+	}
+	while(j<sub_ar[2*node+1].size()){
+		sub_ar[node].push_back(sub_ar[2*node+1][j]);
+		j++;
+	}
+	return;
+}
+
+ll query(ll low,ll high,ll l,ll r,ll k,ll node){
+	
+	
+	if(low>r||l>high){
+		return 0;
+	}
+	
+	if(low>=l&&high<=r){
+		
+		return sub_ar[node].end()-upper_bound(sub_ar[node].begin(),sub_ar[node].end(),k);
+		
+		
+	}
+	
+	ll mid = (low+high)/2;
+	ll ans1 = query(low,mid,l,r,k,2*node);
+	ll ans2 = query(mid+1,high,l,r,k,2*node+1);
+	//cout<<ans1<<" "<<ans2<<"\n";
+	return ans1+ans2;	
+	
+}
+
+
+int main(){
+	
+	int n;
+	cin>>n;
+	
+	for(int i=0;i<n;i++){
+		cin>>ar[i];
+	}
+	
+	build(0,n-1,1);		
+	int q;
+	cin>>q;
+	while(q--){
+		ll l,r,k;
+		cin>>l>>r>>k;
+		l--,r--;
+		cout<<query(0,n-1,l,r,k,1)<<"\n";
+	}
+	
+	//ll a = upper_bound(sub_ar[1].begin(),sub_ar[1].end(),2) - sub_ar[1].begin();	
+	//cout<<sub_ar[1].size()-a<<"\n";
+	return 0;
+}
